@@ -14,12 +14,12 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 setup(
     name="ai-code-review-assistant",
     version="1.0.0",
-    author="AI Code Review Assistant Team",
-    author_email="team@example.com",
+    author="janiapurv",
+    author_email="janiapurv@github.com",
     description="An AI-powered code review assistant using the Model Context Protocol",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/your-username/ai-code-review-assistant",
+    url="https://github.com/janiapurv/ai-code-review-assistant",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -62,8 +62,8 @@ setup(
     },
     keywords="code-review ai mcp model-context-protocol openai github",
     project_urls={
-        "Bug Reports": "https://github.com/your-username/ai-code-review-assistant/issues",
-        "Source": "https://github.com/your-username/ai-code-review-assistant",
-        "Documentation": "https://github.com/your-username/ai-code-review-assistant/blob/main/README.md",
+        "Bug Reports": "https://github.com/janiapurv/ai-code-review-assistant/issues",
+        "Source": "https://github.com/janiapurv/ai-code-review-assistant",
+        "Documentation": "https://github.com/janiapurv/ai-code-review-assistant/blob/main/README.md",
     },
 ) 

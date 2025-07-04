@@ -16,7 +16,7 @@ An intelligent MCP (Model Context Protocol) server that provides automated code 
 
 1. Clone the repository:
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/janiapurv/ai-code-review-assistant.git
 cd ai-code-review-assistant
 ```
 
