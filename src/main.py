@@ -42,8 +42,9 @@ server = Server("ai-code-review-assistant")
 reviewer = CodeReviewer()
 github_integration = GitHubIntegration()
 
+
 @server.list_tools()
-async def list_tools(request: ListToolsRequest) -> ListToolsResult:
+async def my_list_tools() -> list[Tool]: 
     """List available tools."""
     print("🔧 List tools method called!")
     
@@ -138,40 +139,39 @@ async def list_tools(request: ListToolsRequest) -> ListToolsResult:
     
     result = ListToolsResult(tools=tools)
     print(f"🔧 ListToolsResult created with {len(result.tools)} tools")
-    return result
+    return tools
 
 @server.call_tool()
-async def call_tool(request: CallToolRequest) -> CallToolResult:
+async def my_call_tool(name: str, arguments: dict[str, Any] | None = None):
     """Handle tool calls."""
-    print(f"🔧 Call tool called: {request.name}")
+    print(f"🔧 Call tool called: {name}")
     try:
-        if request.name == "review_code":
-            return await _handle_review_code(request.arguments)
-        elif request.name == "review_file":
-            return await _handle_review_file(request.arguments)
-        elif request.name == "review_pull_request":
-            return await _handle_review_pull_request(request.arguments)
-        elif request.name == "review_security":
-            return await _handle_review_security(request.arguments)
-        elif request.name == "review_performance":
-            return await _handle_review_performance(request.arguments)
-        elif request.name == "health_check":
-            return await _handle_health_check(request.arguments)
+        if arguments is None:
+            arguments = {}
+            
+        if name == "review_code":
+            print(f"🔍 Debug: review_code called with arguments: {arguments}")
+            return await _handle_review_code(arguments)
+        elif name == "review_file":
+            return await _handle_review_file(arguments)
+        elif name == "review_pull_request":
+            return await _handle_review_pull_request(arguments)
+        elif name == "review_security":
+            return await _handle_review_security(arguments)
+        elif name == "review_performance":
+            return await _handle_review_performance(arguments)
+        elif name == "health_check":
+            return await _handle_health_check(arguments)
         else:
-            raise ValueError(f"Unknown tool: {request.name}")
+            raise ValueError(f"Unknown tool: {name}")
             
     except Exception as e:
-        return CallToolResult(
-            content=[
-                TextContent(
-                    type="text",
-                    text=f"Error: {str(e)}"
-                )
-            ],
-            isError=True
-        )
+        return [TextContent(
+            type="text",
+            text=f"Error: {str(e)}"
+        )]
 
-async def _handle_review_code(arguments: Dict[str, Any]) -> CallToolResult:
+async def _handle_review_code(arguments: Dict[str, Any]):
     """Handle code review tool call."""
     request = CodeReviewRequest(
         code=arguments["code"],
@@ -185,16 +185,12 @@ async def _handle_review_code(arguments: Dict[str, Any]) -> CallToolResult:
     # Format the response
     response_text = _format_review_response(review)
     
-    return CallToolResult(
-        content=[
-            TextContent(
-                type="text",
-                text=response_text
-            )
-        ]
-    )
+    return [TextContent(
+        type="text",
+        text=response_text
+    )]
 
-async def _handle_review_file(arguments: Dict[str, Any]) -> CallToolResult:
+async def _handle_review_file(arguments: Dict[str, Any]):
     """Handle file review tool call."""
     request = FileReviewRequest(
         file_path=arguments["file_path"],
@@ -211,16 +207,12 @@ async def _handle_review_file(arguments: Dict[str, Any]) -> CallToolResult:
     
     response_text = _format_review_response(review)
     
-    return CallToolResult(
-        content=[
-            TextContent(
-                type="text",
-                text=response_text
-            )
-        ]
-    )
+    return [TextContent(
+        type="text",
+        text=response_text
+    )]
 
-async def _handle_review_pull_request(arguments: Dict[str, Any]) -> CallToolResult:
+async def _handle_review_pull_request(arguments: Dict[str, Any]):
     """Handle pull request review tool call."""
     request = GitHubPullRequestRequest(
         owner=arguments["owner"],
@@ -236,16 +228,12 @@ async def _handle_review_pull_request(arguments: Dict[str, Any]) -> CallToolResu
     else:
         response_text = _format_pr_review_response(result)
     
-    return CallToolResult(
-        content=[
-            TextContent(
-                type="text",
-                text=response_text
-            )
-        ]
-    )
+    return [TextContent(
+        type="text",
+        text=response_text
+    )]
 
-async def _handle_review_security(arguments: Dict[str, Any]) -> CallToolResult:
+async def _handle_review_security(arguments: Dict[str, Any]):
     """Handle security review tool call."""
     issues = await reviewer.review_security(
         arguments["code"],
@@ -254,16 +242,12 @@ async def _handle_review_security(arguments: Dict[str, Any]) -> CallToolResult:
     
     response_text = _format_security_review(issues)
     
-    return CallToolResult(
-        content=[
-            TextContent(
-                type="text",
-                text=response_text
-            )
-        ]
-    )
+    return [TextContent(
+        type="text",
+        text=response_text
+    )]
 
-async def _handle_review_performance(arguments: Dict[str, Any]) -> CallToolResult:
+async def _handle_review_performance(arguments: Dict[str, Any]):
     """Handle performance review tool call."""
     issues = await reviewer.review_performance(
         arguments["code"],
@@ -272,16 +256,12 @@ async def _handle_review_performance(arguments: Dict[str, Any]) -> CallToolResul
     
     response_text = _format_performance_review(issues)
     
-    return CallToolResult(
-        content=[
-            TextContent(
-                type="text",
-                text=response_text
-            )
-        ]
-    )
+    return [TextContent(
+        type="text",
+        text=response_text
+    )]
 
-async def _handle_health_check(arguments: Dict[str, Any]) -> CallToolResult:
+async def _handle_health_check(arguments: Dict[str, Any]):
     """Handle health check tool call."""
     health = HealthResponse(
         status="healthy",
@@ -293,14 +273,10 @@ async def _handle_health_check(arguments: Dict[str, Any]) -> CallToolResult:
         }
     )
     
-    return CallToolResult(
-        content=[
-            TextContent(
-                type="text",
-                text=f"AI Code Review Assistant Server\nHealth Check: {health.status}\nVersion: {health.version}\nServices: {health.services}"
-            )
-        ]
-    )
+    return [TextContent(
+        type="text",
+        text=f"AI Code Review Assistant Server\nHealth Check: {health.status}\nVersion: {health.version}\nServices: {health.services}"
+    )]
 
 def _format_review_response(review: CodeReviewResponse) -> str:
     """Format a code review response for display."""
@@ -440,6 +416,7 @@ async def main():
     
     async with stdio_server() as (read, write):
         print("🔌 Stdio server started, running server...")
+        # Run the server
         await server.run(
             read,
             write,
@@ -458,4 +435,4 @@ async def main():
 if __name__ == "__main__":
     print("🎯 Main block reached, starting asyncio...")
     asyncio.run(main())
-    print("✅ Script completed.") 
+    print("✅ Script completed.")
